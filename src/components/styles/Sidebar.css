@@ -1,0 +1,24 @@
+/* Remove unnecessary styles as they’re handled by MUI sx */
+.sidebar {
+  transition: width 0.3s ease;
+}
+
+.menu-button {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1300;
+  background-color: #1a1a2e;
+  color: #fff;
+}
+
+.menu-button:hover {
+  background-color: #0f3460;
+}
+
+@media (max-width: 600px) {
+  .MuiDrawer-paper {
+    position: fixed;
+    z-index: 1200;
+  }
+}

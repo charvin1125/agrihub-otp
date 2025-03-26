@@ -1,0 +1,8 @@
+/* styles/Category.css */
+@media (max-width: 600px) {
+  .MuiTable-root {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}

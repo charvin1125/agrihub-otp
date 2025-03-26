@@ -1,0 +1,13 @@
+/* Navbar.css - Minimal Styles for MUI Navbar */
+
+/* Optional: Add a smooth transition effect */
+  .sidebar {
+    transition: width 0.3s ease;
+  }
+
+/* Ensure smooth animations */
+@media (max-width: 600px) {
+  .sidebar {
+    width: 70px !important; /* Collapsed by default on mobile */
+  }
+}
