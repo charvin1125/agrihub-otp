@@ -13,6 +13,7 @@
 agrihub.zip
 extra.js
 .env
+/backend/.env
 /frontend
 # misc
 .DS_Store
