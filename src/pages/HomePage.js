@@ -128,7 +128,9 @@ const HomePage = () => {
     <ThemeProvider theme={theme}>
       <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
         <NavigationBar />
-        <Box sx={{ height: { xs: 56, sm: 64, md: 70 } }} />
+        {/* <Box sx={{ height: { xs: 56, sm: 64, md: 70 } }} /> */}
+        <Box sx={{ height: { xs: 0, sm: 0, md: 0 } }} />
+
 
         {/* Carousel */}
         <Box
