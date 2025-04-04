@@ -1,24 +1,18 @@
-/* Remove unnecessary styles as they’re handled by MUI sx */
-.sidebar {
-  transition: width 0.3s ease;
+/* Sidebar.css */
+.MuiDrawer-paper {
+  font-family: 'Roboto', sans-serif;
+  border-radius: 0 8px 8px 0;
 }
 
-.menu-button {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  z-index: 1300;
-  background-color: #1a1a2e;
-  color: #fff;
+.MuiListItemButton-root {
+  padding: 8px 16px;
+  transition: all 0.3s ease-in-out; /* Smooth transition for all changes */
 }
 
-.menu-button:hover {
-  background-color: #0f3460;
+.MuiListItemIcon-root {
+  min-width: 36px;
 }
 
-@media (max-width: 600px) {
-  .MuiDrawer-paper {
-    position: fixed;
-    z-index: 1200;
-  }
+.MuiTypography-root {
+  font-size: 14px;
 }

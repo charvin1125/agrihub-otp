@@ -568,6 +568,9 @@ import {
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import PeopleIcon from "@mui/icons-material/People";
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import MenuIcon from "@mui/icons-material/Menu";
 import StarIcon from "@mui/icons-material/Star";
 import { Bar, Pie, Line } from "react-chartjs-2";
@@ -932,7 +935,7 @@ const AdminDashboard = () => {
             </Tooltip>
           </Box>
 
-          <Grid container spacing={2} sx={{ mb: { xs: 2, sm: 4 } }}>
+          {/* <Grid container spacing={2} sx={{ mb: { xs: 2, sm: 4 } }}>
             {[
               { title: "Total Users", value: totalUsers, color: darkMode ? "#0288d1" : "#42a5f5" },
               { title: "Total Revenue", value: `₹${totalRevenue.toLocaleString()}`, color: darkMode ? "#d81b60" : "#f06292" },
@@ -947,7 +950,79 @@ const AdminDashboard = () => {
                 </Card>
               </Grid>
             ))}
-          </Grid>
+          </Grid> */}
+          <Grid container spacing={2} sx={{ mb: { xs: 2, sm: 4 } }}>
+  {[
+    { 
+      title: "Total Users", 
+      value: totalUsers, 
+      icon: <PeopleIcon sx={{ fontSize: 40 }} />, 
+      gradient: "linear-gradient(135deg, #0288d1 0%, #42a5f5 100%)" 
+    },
+    { 
+      title: "Total Revenue", 
+      value: `₹${totalRevenue.toLocaleString()}`, 
+      icon: <MonetizationOnIcon sx={{ fontSize: 40 }} />, 
+      gradient: "linear-gradient(135deg, #d81b60 0%, #f06292 100%)" 
+    },
+    { 
+      title: "Total Orders", 
+      value: totalOrders, 
+      icon: <ShoppingCartIcon sx={{ fontSize: 40 }} />, 
+      gradient: "linear-gradient(135deg, #388e3c 0%, #66bb6a 100%)" 
+    },
+  ].map((stat, index) => (
+    <Grid item xs={12} sm={4} key={index}>
+      <Card
+        sx={{
+          background: stat.gradient,
+          color: "#fff",
+          borderRadius: "16px",
+          overflow: "hidden",
+          position: "relative",
+          transition: "transform 0.3s ease, box-shadow 0.3s ease",
+          "&:hover": {
+            transform: "translateY(-8px)",
+            boxShadow: darkMode 
+              ? "0 8px 30px rgba(255,255,255,0.2)" 
+              : "0 8px 30px rgba(0,0,0,0.2)",
+          },
+        }}
+      >
+        <CardContent sx={{ display: "flex", alignItems: "center", p: 3 }}>
+          <Box sx={{ mr: 2 }}>{stat.icon}</Box>
+          <Box>
+            <Typography 
+              variant={isMobile ? "subtitle1" : "h6"} 
+              sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: 1 }}
+            >
+              {stat.title}
+            </Typography>
+            <Typography 
+              variant={isMobile ? "h5" : "h3"} 
+              sx={{ mt: 1, fontWeight: "bold", lineHeight: 1.2 }}
+            >
+              {stat.value}
+            </Typography>
+          </Box>
+        </CardContent>
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(255, 255, 255, 0.1)",
+            clipPath: "polygon(0 0, 100% 0, 100% 30%, 0 70%)",
+            zIndex: 0,
+            opacity: 0.3,
+          }}
+        />
+      </Card>
+    </Grid>
+  ))}
+</Grid>
 
           {showLowStockCard && (
             <Grid container spacing={2} sx={{ mb: { xs: 2, sm: 4 } }}>

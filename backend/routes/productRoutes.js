@@ -52,6 +52,7 @@ router.put(
 
 // Fixed this line: Changed getProducts to getAllProducts
 router.get("/list", productController.getAllProducts);
+router.put("/update/:id", isAuthenticated, isAdmin, upload.single("image"), productController.updateProduct);
 router.delete("/delete/:id", isAuthenticated, isAdmin, productController.deleteProduct);
 router.get("/low-stock", isAuthenticated, isAdmin, productController.getLowStockProducts);
 // router.put("/:id/update-stock", isAuthenticated, isAdmin, productController.updateStock);
