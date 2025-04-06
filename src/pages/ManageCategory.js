@@ -296,8 +296,1146 @@
 // };
 
 // export default ManageCategory;
+// import React, { useState, useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
+// import axios from "axios";
+// import Sidebar from "../components/Sidebar";
+// import AdminNavbar from "../components/AdminNavbar";
+// import {
+//   Box,
+//   Typography,
+//   TextField,
+//   Button,
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableContainer,
+//   TableHead,
+//   TableRow,
+//   Paper,
+//   IconButton,
+//   Grid,
+//   Card,
+//   CardContent,
+//   InputAdornment,
+//   Checkbox,
+//   Container,
+//   Select,
+//   MenuItem,
+//   FormControl,
+//   InputLabel,
+//   Dialog,
+//   DialogTitle,
+//   DialogContent,
+//   DialogActions,
+// } from "@mui/material";
+// import { createTheme, ThemeProvider } from "@mui/material/styles";
+// import EditIcon from "@mui/icons-material/Edit";
+// import DeleteIcon from "@mui/icons-material/Delete";
+// import SearchIcon from "@mui/icons-material/Search";
+// import FileDownloadIcon from "@mui/icons-material/FileDownload";
+// import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+// import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+// import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+// import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+// import { ToastContainer, toast } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
+// import "./styles/Category.css"; // Keep if you want additional custom styles
+
+// const ManageCategory = () => {
+//   const [category, setCategory] = useState({ name: "", description: "" });
+//   const [categories, setCategories] = useState([]);
+//   const [filteredCategories, setFilteredCategories] = useState([]);
+//   const [isEditing, setIsEditing] = useState(false);
+//   const [editId, setEditId] = useState(null);
+//   const [user, setUser] = useState(null);
+//   const [darkMode, setDarkMode] = useState(localStorage.getItem("theme") === "dark");
+//   const [sidebarOpen, setSidebarOpen] = useState(true);
+//   const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
+//   const [selectedCategories, setSelectedCategories] = useState([]);
+//   const [sortField, setSortField] = useState(null);
+//   const [sortDirection, setSortDirection] = useState("asc");
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [itemsPerPage, setItemsPerPage] = useState(10);
+//   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+//   const [categoryToDelete, setCategoryToDelete] = useState(null);
+//   const sidebarWidth = 260;
+//   const navigate = useNavigate();
+
+//   // Fetch initial data
+//   useEffect(() => {
+//     fetchCategories();
+//     fetchUser();
+
+//     const handleResize = () => {
+//       const mobile = window.innerWidth < 600;
+//       setIsMobile(mobile);
+//       if (mobile) setSidebarOpen(false);
+//       else setSidebarOpen(true);
+//     };
+//     window.addEventListener("resize", handleResize);
+//     handleResize();
+//     return () => window.removeEventListener("resize", handleResize);
+//   }, []);
+
+//   const fetchCategories = async () => {
+//     try {
+//       const response = await axios.get("http://localhost:5000/api/category/list", { withCredentials: true });
+//       setCategories(response.data);
+//       setFilteredCategories(response.data);
+//     } catch (error) {
+//       toast.error("Failed to fetch categories");
+//     }
+//   };
+
+//   const fetchUser = async () => {
+//     try {
+//       const response = await axios.get("http://localhost:5000/api/users/me", { withCredentials: true });
+//       setUser(response.data);
+//       if (!response.data.isAdmin) navigate("/"); // Redirect non-admins
+//     } catch (error) {
+//       console.log("User not logged in");
+//       navigate("/login");
+//     }
+//   };
+
+//   const handleChange = (e) => {
+//     setCategory({ ...category, [e.target.name]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!user?.isAdmin) {
+//       toast.error("Unauthorized: Admin access only");
+//       return;
+//     }
+//     try {
+//       if (isEditing) {
+//         await axios.put(`http://localhost:5000/api/category/${editId}`, category, { withCredentials: true });
+//         toast.success("Category updated successfully!");
+//         setIsEditing(false);
+//         setEditId(null);
+//       } else {
+//         await axios.post("http://localhost:5000/api/category/add", category, { withCredentials: true });
+//         toast.success("Category added successfully!");
+//       }
+//       setCategory({ name: "", description: "" });
+//       fetchCategories();
+//     } catch (error) {
+//       toast.error(error.response?.data?.error || "Something went wrong");
+//     }
+//   };
+
+//   const handleEdit = (id, currentCategory) => {
+//     setCategory(currentCategory);
+//     setEditId(id);
+//     setIsEditing(true);
+//   };
+
+//   const handleDelete = async () => {
+//     if (!user?.isAdmin) {
+//       toast.error("Only admins can perform this action");
+//       return;
+//     }
+//     try {
+//       await axios.delete(`http://localhost:5000/api/category/${categoryToDelete}`, { withCredentials: true });
+//       toast.success("Category deleted successfully!");
+//       fetchCategories();
+//       setDeleteDialogOpen(false);
+//       setCategoryToDelete(null);
+//     } catch (error) {
+//       toast.error("Failed to delete category");
+//     }
+//   };
+
+//   const openDeleteDialog = (id) => {
+//     setCategoryToDelete(id);
+//     setDeleteDialogOpen(true);
+//   };
+
+//   const closeDeleteDialog = () => {
+//     setDeleteDialogOpen(false);
+//     setCategoryToDelete(null);
+//   };
+
+//   const handleExport = () => {
+//     const csvContent = filteredCategories.map(c => `${c.name},${c.description}`).join("\n");
+//     const blob = new Blob([`Name,Description\n${csvContent}`], { type: "text/csv" });
+//     const url = window.URL.createObjectURL(blob);
+//     const link = document.createElement("a");
+//     link.href = url;
+//     link.download = "categories.csv";
+//     link.click();
+//     window.URL.revokeObjectURL(url);
+//   };
+
+//   const handleSelectAll = (event) => {
+//     if (event.target.checked) {
+//       setSelectedCategories(currentCategories.map((c) => c._id));
+//     } else {
+//       setSelectedCategories([]);
+//     }
+//   };
+
+//   const handleSelectCategory = (id) => {
+//     setSelectedCategories((prev) =>
+//       prev.includes(id) ? prev.filter((categoryId) => categoryId !== id) : [...prev, id]
+//     );
+//   };
+
+//   const toggleDarkMode = () => {
+//     const newMode = !darkMode;
+//     setDarkMode(newMode);
+//     localStorage.setItem("theme", newMode ? "dark" : "light");
+//   };
+
+//   const handleSort = (field) => {
+//     const isAsc = sortField === field && sortDirection === "asc";
+//     setSortField(field);
+//     setSortDirection(isAsc ? "desc" : "asc");
+//     const sortedCategories = [...filteredCategories].sort((a, b) => {
+//       if (a[field] < b[field]) return isAsc ? 1 : -1;
+//       if (a[field] > b[field]) return isAsc ? -1 : 1;
+//       return 0;
+//     });
+//     setFilteredCategories(sortedCategories);
+//     setCurrentPage(1);
+//   };
+
+//   const handleSearch = (e) => {
+//     const searchTerm = e.target.value.toLowerCase();
+//     const filtered = categories.filter(
+//       (c) =>
+//         c.name.toLowerCase().includes(searchTerm) ||
+//         c.description.toLowerCase().includes(searchTerm)
+//     );
+//     setFilteredCategories(filtered);
+//     setCurrentPage(1);
+//   };
+
+//   // Pagination Logic
+//   const indexOfLastItem = currentPage * itemsPerPage;
+//   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+//   const currentCategories = filteredCategories.slice(indexOfFirstItem, indexOfLastItem);
+//   const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+
+//   const handlePageChange = (page) => {
+//     if (page >= 1 && page <= totalPages) {
+//       setCurrentPage(page);
+//     }
+//   };
+
+//   const handleItemsPerPageChange = (event) => {
+//     setItemsPerPage(event.target.value);
+//     setCurrentPage(1);
+//   };
+
+//   const theme = createTheme({
+//     palette: {
+//       mode: darkMode ? "dark" : "light",
+//       primary: { main: "#4CAF50" }, // Match ManageVendors.js
+//       secondary: { main: "#FF5252" }, // Match ManageVendors.js
+//       background: { default: darkMode ? "#121212" : "#F5F7FA", paper: darkMode ? "#1e1e1e" : "#FFFFFF" },
+//       text: { primary: darkMode ? "#e0e0e0" : "#212121", secondary: darkMode ? "#b0b0b0" : "#757575" },
+//     },
+//     components: {
+//       MuiTableCell: {
+//         styleOverrides: {
+//           head: {
+//             fontFamily: "Roboto, sans-serif",
+//             fontWeight: "500",
+//             fontSize: "12px",
+//             color: darkMode ? "#b0b0b0" : "#757575",
+//             textTransform: "uppercase",
+//             padding: "12px 16px",
+//             borderBottom: "none", // Remove border-bottom for header
+//           },
+//           body: {
+//             fontFamily: "Roboto, sans-serif",
+//             fontSize: "14px",
+//             color: darkMode ? "#e0e0e0" : "#212121",
+//             padding: "12px 16px",
+//             borderBottom: "none", // Remove border-bottom for body cells
+//           },
+//         },
+//       },
+//       MuiTableRow: {
+//         styleOverrides: {
+//           root: {
+//             "&:hover": {
+//               backgroundColor: "#E8F5E9", // Hover effect matching ManageVendors.js
+//             },
+//           },
+//         },
+//       },
+//       MuiButton: {
+//         styleOverrides: {
+//           root: {
+//             borderRadius: "10px",
+//             textTransform: "none",
+//             fontWeight: "500",
+//           },
+//           outlined: {
+//             borderColor: "#4CAF50",
+//             color: "#4CAF50",
+//             "&:hover": { borderColor: "#388E3C", color: "#388E3C" },
+//           },
+//           contained: {
+//             backgroundColor: "#4CAF50",
+//             color: "#FFFFFF",
+//             "&:hover": { backgroundColor: "#388E3C" },
+//           },
+//         },
+//       },
+//       MuiTextField: {
+//         styleOverrides: {
+//           root: {
+//             "& .MuiOutlinedInput-root": {
+//               borderRadius: "20px",
+//               "& fieldset": { borderColor: darkMode ? "#b0b0b0" : "#E0E0E0" },
+//               "&:hover fieldset": { borderColor: "#388E3C" },
+//               "&.Mui-focused fieldset": { borderColor: "#4CAF50" },
+//             },
+//           },
+//         },
+//       },
+//       MuiIconButton: {
+//         styleOverrides: {
+//           root: {
+//             color: "#757575",
+//             "&:hover": {
+//               color: "#4CAF50",
+//             },
+//           },
+//         },
+//       },
+//       MuiCard: {
+//         styleOverrides: {
+//           root: {
+//             borderRadius: "12px",
+//             boxShadow: "none",
+//             border: "1px solid #E0E0E0",
+//           },
+//         },
+//       },
+//     },
+//   });
+
+//   return (
+//     <ThemeProvider theme={theme}>
+//       <Box sx={{ display: "flex", minHeight: "100vh" }}>
+//         <Sidebar
+//           darkMode={darkMode}
+//           toggleDarkMode={toggleDarkMode}
+//           isMobile={isMobile}
+//           open={sidebarOpen}
+//           setOpen={setSidebarOpen}
+//         />
+//         <Box
+//           sx={{
+//             flexGrow: 1,
+//             width: { xs: "100%", sm: `calc(100% - ${sidebarOpen && !isMobile ? sidebarWidth : 0}px)` },
+//             transition: "width 0.3s ease",
+//           }}
+//         >
+//           <AdminNavbar
+//             sidebarOpen={sidebarOpen}
+//             setSidebarOpen={setSidebarOpen}
+//             isMobile={isMobile}
+//             sidebarWidth={sidebarOpen && !isMobile ? sidebarWidth : 0}
+//           />
+//           <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", minHeight: "100vh" }}>
+//             <Container maxWidth="lg" sx={{ pt: 10, pb: 4 }}>
+//               {/* Header */}
+//               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+//                 <Typography variant={isMobile ? "h5" : "h4"} sx={{ fontWeight: "bold", color: "text.primary" }}>
+//                   Categories
+//                 </Typography>
+//                 <Box sx={{ display: "flex", gap: 1 }}>
+//                   <Button
+//                     variant="outlined"
+//                     startIcon={<FileDownloadIcon />}
+//                     onClick={handleExport}
+//                     sx={{ borderRadius: "20px", textTransform: "none" }}
+//                   >
+//                     Export
+//                   </Button>
+//                   <Button
+//                     variant="contained"
+//                     startIcon={<FileDownloadIcon />}
+//                     onClick={() => navigate("/add-category")} // Assuming a route for adding categories
+//                     sx={{ borderRadius: "20px", textTransform: "none" }}
+//                   >
+//                     Add Category
+//                   </Button>
+//                 </Box>
+//               </Box>
+
+//               {/* Search Bar */}
+//               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, gap: 2 }}>
+//                 <TextField
+//                   placeholder="Search categories..."
+//                   variant="outlined"
+//                   size="small"
+//                   sx={{ flexGrow: 1, borderRadius: "20px" }}
+//                   onChange={handleSearch}
+//                   InputProps={{
+//                     startAdornment: (
+//                       <InputAdornment position="start">
+//                         <SearchIcon />
+//                       </InputAdornment>
+//                     ),
+//                   }}
+//                 />
+//                 <Button
+//                   variant="outlined"
+//                   startIcon={<FileDownloadIcon />}
+//                   sx={{ borderRadius: "20px", textTransform: "none" }}
+//                 >
+//                   Filter
+//                 </Button>
+//               </Box>
+
+//               {/* Category Form */}
+//               {user?.isAdmin && (isEditing || !editId) && (
+//                 <Card sx={{ mb: 4, bgcolor: "background.paper" }}>
+//                   <CardContent>
+//                     <Typography variant="h6" sx={{ mb: 2, color: "text.primary" }}>
+//                       {isEditing ? "Edit Category" : "Add New Category"}
+//                     </Typography>
+//                     <form onSubmit={handleSubmit}>
+//                       <Grid container spacing={2}>
+//                         <Grid item xs={12}>
+//                           <TextField
+//                             fullWidth
+//                             label="Category Name"
+//                             name="name"
+//                             value={category.name}
+//                             onChange={handleChange}
+//                             required
+//                             variant="outlined"
+//                             size={isMobile ? "small" : "medium"}
+//                           />
+//                         </Grid>
+//                         <Grid item xs={12}>
+//                           <TextField
+//                             fullWidth
+//                             label="Description"
+//                             name="description"
+//                             value={category.description}
+//                             onChange={handleChange}
+//                             multiline
+//                             rows={isMobile ? 2 : 3}
+//                             variant="outlined"
+//                             size={isMobile ? "small" : "medium"}
+//                           />
+//                         </Grid>
+//                         <Grid item xs={12}>
+//                           <Button
+//                             type="submit"
+//                             variant="contained"
+//                             color="primary"
+//                             fullWidth={isMobile}
+//                             sx={{ mt: 2, py: 1, borderRadius: "10px", textTransform: "none" }}
+//                           >
+//                             {isEditing ? "Update Category" : "Add Category"}
+//                           </Button>
+//                         </Grid>
+//                       </Grid>
+//                     </form>
+//                   </CardContent>
+//                 </Card>
+//               )}
+
+//               {/* Category List */}
+//               <TableContainer
+//                 component={Paper}
+//                 sx={{
+//                   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow
+//                   border: "none",
+//                   bgcolor: "#FFFFFF", // White background
+//                   borderRadius: "8px",
+//                 }}
+//               >
+//                 <Table
+//                   sx={{
+//                     minWidth: { xs: 300, sm: 650 },
+//                     borderCollapse: "separate",
+//                     borderSpacing: "0 8px", // Add spacing between rows
+//                   }}
+//                   aria-label="category table"
+//                 >
+//                   <TableHead>
+//                     <TableRow>
+//                       <TableCell>
+//                         <Checkbox
+//                           checked={selectedCategories.length === currentCategories.length && currentCategories.length > 0}
+//                           onChange={handleSelectAll}
+//                         />
+//                       </TableCell>
+//                       <TableCell onClick={() => handleSort("name")} sx={{ cursor: "pointer" }}>
+//                         NAME{" "}
+//                         {sortField === "name" && (sortDirection === "asc" ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />)}
+//                       </TableCell>
+//                       <TableCell
+//                         onClick={() => handleSort("description")}
+//                         sx={{ display: { xs: "none", sm: "table-cell" }, cursor: "pointer" }}
+//                       >
+//                         DESCRIPTION{" "}
+//                         {sortField === "description" && (sortDirection === "asc" ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />)}
+//                       </TableCell>
+//                       {user?.isAdmin && <TableCell align="right">ACTIONS</TableCell>}
+//                     </TableRow>
+//                   </TableHead>
+//                   <TableBody>
+//                     {currentCategories.map((c) => (
+//                       <TableRow key={c._id}>
+//                         <TableCell>
+//                           <Checkbox
+//                             checked={selectedCategories.includes(c._id)}
+//                             onChange={() => handleSelectCategory(c._id)}
+//                           />
+//                         </TableCell>
+//                         <TableCell>
+//                           <Box>
+//                             <Typography variant="body2" sx={{ fontWeight: "500" }}>
+//                               {c.name}
+//                             </Typography>
+//                             <Typography variant="caption" sx={{ color: "#757575" }}>
+//                               ID: {c._id.slice(0, 8)}
+//                             </Typography>
+//                           </Box>
+//                         </TableCell>
+//                         <TableCell sx={{ display: { xs: "none", sm: "table-cell" } }}>{c.description}</TableCell>
+//                         {user?.isAdmin && (
+//                           <TableCell align="right">
+//                             <IconButton onClick={() => handleEdit(c._id, c)} color="inherit">
+//                               <EditIcon />
+//                             </IconButton>
+//                             <IconButton onClick={() => openDeleteDialog(c._id)} color="inherit">
+//                               <DeleteIcon />
+//                             </IconButton>
+//                           </TableCell>
+//                         )}
+//                       </TableRow>
+//                     ))}
+//                   </TableBody>
+//                 </Table>
+//               </TableContainer>
+
+//               {/* Pagination */}
+//               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2, p: 2 }}>
+//                 <FormControl sx={{ minWidth: 120 }}>
+//                   <InputLabel>Items per page</InputLabel>
+//                   <Select value={itemsPerPage} onChange={handleItemsPerPageChange} label="Items per page">
+//                     <MenuItem value={5}>5</MenuItem>
+//                     <MenuItem value={10}>10</MenuItem>
+//                     <MenuItem value={25}>25</MenuItem>
+//                     <MenuItem value={50}>50</MenuItem>
+//                   </Select>
+//                 </FormControl>
+//                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+//                   <IconButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+//                     <ChevronLeftIcon />
+//                   </IconButton>
+//                   <Typography>
+//                     Page {currentPage} of {totalPages}
+//                   </Typography>
+//                   <IconButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+//                     <ChevronRightIcon />
+//                   </IconButton>
+//                 </Box>
+//               </Box>
+//             </Container>
+
+//             {/* Delete Confirmation Dialog */}
+//             <Dialog
+//               open={deleteDialogOpen}
+//               onClose={closeDeleteDialog}
+//               PaperProps={{
+//                 sx: { borderRadius: "10px" },
+//               }}
+//               sx={{
+//                 backdropFilter: "blur(5px)", // Blurs the background
+//               }}
+//             >
+//               <DialogTitle sx={{ textAlign: "center" }}>Confirm Delete</DialogTitle>
+//               <DialogContent>
+//                 <Typography>Are you sure you want to delete this category?</Typography>
+//               </DialogContent>
+//               <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
+//                 <Button onClick={closeDeleteDialog} variant="outlined" color="primary">
+//                   Cancel
+//                 </Button>
+//                 <Button onClick={handleDelete} variant="contained" color="secondary">
+//                   Delete
+//                 </Button>
+//               </DialogActions>
+//             </Dialog>
+
+//             {/* Toast Container */}
+//             <ToastContainer
+//               position="top-right"
+//               autoClose={3000}
+//               hideProgressBar={false}
+//               newestOnTop={false}
+//               closeOnClick
+//               rtl={false}
+//               pauseOnFocusLoss
+//               draggable
+//               pauseOnHover
+//             />
+//           </Box>
+//         </Box>
+//       </Box>
+//     </ThemeProvider>
+//   );
+// };
+
+// export default ManageCategory;
+// import React, { useState, useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
+// import axios from "axios";
+// import Sidebar from "../components/Sidebar";
+// import AdminNavbar from "../components/AdminNavbar";
+// import {
+//   Box,
+//   Typography,
+//   TextField,
+//   Button,
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableContainer,
+//   TableHead,
+//   TableRow,
+//   Paper,
+//   IconButton,
+//   Grid,
+//   Card,
+//   CardContent,
+//   InputAdornment,
+//   Checkbox,
+//   Container,
+//   Dialog,
+//   DialogTitle,
+//   DialogContent,
+//   DialogActions,
+// } from "@mui/material";
+// import { createTheme, ThemeProvider } from "@mui/material/styles";
+// import EditIcon from "@mui/icons-material/Edit";
+// import DeleteIcon from "@mui/icons-material/Delete";
+// import SearchIcon from "@mui/icons-material/Search";
+// import FileDownloadIcon from "@mui/icons-material/FileDownload";
+// import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+// import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+// import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+// import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+// import { ToastContainer, toast } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
+// import "./styles/Category.css"; // Keep if you want additional custom styles
+
+// const ManageCategory = () => {
+//   const [category, setCategory] = useState({ name: "", description: "" });
+//   const [categories, setCategories] = useState([]);
+//   const [filteredCategories, setFilteredCategories] = useState([]);
+//   const [isEditing, setIsEditing] = useState(false);
+//   const [editId, setEditId] = useState(null);
+//   const [user, setUser] = useState(null);
+//   const [darkMode, setDarkMode] = useState(localStorage.getItem("theme") === "dark");
+//   const [sidebarOpen, setSidebarOpen] = useState(true);
+//   const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
+//   const [selectedCategories, setSelectedCategories] = useState([]);
+//   const [sortField, setSortField] = useState(null);
+//   const [sortDirection, setSortDirection] = useState("asc");
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [itemsPerPage, setItemsPerPage] = useState(10);
+//   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+//   const [categoryToDelete, setCategoryToDelete] = useState(null);
+//   const [errors, setErrors] = useState({});
+//   const sidebarWidth = 260;
+//   const navigate = useNavigate();
+
+//   useEffect(() => {
+//     fetchCategories();
+//     fetchUser();
+//     const handleResize = () => {
+//       const mobile = window.innerWidth < 600;
+//       setIsMobile(mobile);
+//       if (mobile) setSidebarOpen(false);
+//       else setSidebarOpen(true);
+//     };
+//     window.addEventListener("resize", handleResize);
+//     handleResize();
+//     return () => window.removeEventListener("resize", handleResize);
+//   }, []);
+
+//   const fetchCategories = async () => {
+//     try {
+//       const response = await axios.get("http://localhost:5000/api/category/list", { withCredentials: true });
+//       setCategories(response.data);
+//       setFilteredCategories(response.data);
+//     } catch (error) {
+//       toast.error("Failed to fetch categories", { position: "top-center" });
+//     }
+//   };
+
+//   const fetchUser = async () => {
+//     try {
+//       const response = await axios.get("http://localhost:5000/api/users/me", { withCredentials: true });
+//       setUser(response.data);
+//       if (!response.data.isAdmin) navigate("/");
+//     } catch (error) {
+//       navigate("/login");
+//     }
+//   };
+
+//   const validateForm = () => {
+//     let tempErrors = {};
+//     if (!category.name.trim()) tempErrors.name = "Category Name is required";
+//     setErrors(tempErrors);
+//     return Object.keys(tempErrors).length === 0;
+//   };
+
+//   const handleChange = (e) => {
+//     setCategory({ ...category, [e.target.name]: e.target.value });
+//     setErrors({ ...errors, [e.target.name]: "" });
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!user?.isAdmin) {
+//       toast.error("Unauthorized: Admin access only", { position: "top-center" });
+//       return;
+//     }
+//     if (!validateForm()) return;
+
+//     try {
+//       if (isEditing) {
+//         await axios.put(`http://localhost:5000/api/category/${editId}`, category, { withCredentials: true });
+//         toast.success("Category updated successfully!", { position: "top-center" });
+//         setIsEditing(false);
+//         setEditId(null);
+//       } else {
+//         await axios.post("http://localhost:5000/api/category/add", category, { withCredentials: true });
+//         toast.success("Category added successfully!", { position: "top-center" });
+//       }
+//       setCategory({ name: "", description: "" });
+//       fetchCategories();
+//     } catch (error) {
+//       toast.error(error.response?.data?.error || "Something went wrong", { position: "top-center" });
+//     }
+//   };
+
+//   const handleEdit = (id, currentCategory) => {
+//     setCategory(currentCategory);
+//     setEditId(id);
+//     setIsEditing(true);
+//   };
+
+//   const handleDelete = async () => {
+//     if (!user?.isAdmin) {
+//       toast.error("Only admins can perform this action", { position: "top-center" });
+//       return;
+//     }
+//     try {
+//       await axios.delete(`http://localhost:5000/api/category/${categoryToDelete}`, { withCredentials: true });
+//       toast.success("Category deleted successfully!", { position: "top-center" });
+//       fetchCategories();
+//       setDeleteDialogOpen(false);
+//       setCategoryToDelete(null);
+//     } catch (error) {
+//       toast.error("Failed to delete category", { position: "top-center" });
+//     }
+//   };
+
+//   const openDeleteDialog = (id) => {
+//     setCategoryToDelete(id);
+//     setDeleteDialogOpen(true);
+//   };
+
+//   const closeDeleteDialog = () => {
+//     setDeleteDialogOpen(false);
+//     setCategoryToDelete(null);
+//   };
+
+//   const handleExport = () => {
+//     const csvContent = filteredCategories.map(c => `${c.name},${c.description}`).join("\n");
+//     const blob = new Blob([`Name,Description\n${csvContent}`], { type: "text/csv" });
+//     const url = window.URL.createObjectURL(blob);
+//     const link = document.createElement("a");
+//     link.href = url;
+//     link.download = "categories.csv";
+//     link.click();
+//     window.URL.revokeObjectURL(url);
+//     toast.success("Categories exported successfully!", { position: "top-center" });
+//   };
+
+//   const handleSelectAll = (event) => {
+//     if (event.target.checked) {
+//       setSelectedCategories(currentCategories.map((c) => c._id));
+//     } else {
+//       setSelectedCategories([]);
+//     }
+//   };
+
+//   const handleSelectCategory = (id) => {
+//     setSelectedCategories((prev) =>
+//       prev.includes(id) ? prev.filter((categoryId) => categoryId !== id) : [...prev, id]
+//     );
+//   };
+
+//   const toggleDarkMode = () => {
+//     const newMode = !darkMode;
+//     setDarkMode(newMode);
+//     localStorage.setItem("theme", newMode ? "dark" : "light");
+//   };
+
+//   const handleSort = (field) => {
+//     const isAsc = sortField === field && sortDirection === "asc";
+//     setSortField(field);
+//     setSortDirection(isAsc ? "desc" : "asc");
+//     const sortedCategories = [...filteredCategories].sort((a, b) => {
+//       if (a[field] < b[field]) return isAsc ? 1 : -1;
+//       if (a[field] > b[field]) return isAsc ? -1 : 1;
+//       return 0;
+//     });
+//     setFilteredCategories(sortedCategories);
+//     setCurrentPage(1);
+//   };
+
+//   const handleSearch = (e) => {
+//     const searchTerm = e.target.value.toLowerCase();
+//     const filtered = categories.filter(
+//       (c) =>
+//         c.name.toLowerCase().includes(searchTerm) ||
+//         c.description.toLowerCase().includes(searchTerm)
+//     );
+//     setFilteredCategories(filtered);
+//     setCurrentPage(1);
+//   };
+
+//   const indexOfLastItem = currentPage * itemsPerPage;
+//   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+//   const currentCategories = filteredCategories.slice(indexOfFirstItem, indexOfLastItem);
+//   const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+
+//   const handlePageChange = (page) => {
+//     if (page >= 1 && page <= totalPages) {
+//       setCurrentPage(page);
+//     }
+//   };
+
+//   const theme = createTheme({
+//     palette: {
+//       mode: darkMode ? "dark" : "light",
+//       primary: { main: "#4CAF50" },
+//       secondary: { main: "#FF5252" },
+//       background: { default: darkMode ? "#121212" : "#F5F7FA", paper: darkMode ? "#1e1e1e" : "#FFFFFF" },
+//       text: { primary: darkMode ? "#e0e0e0" : "#212121", secondary: darkMode ? "#b0b0b0" : "#757575" },
+//     },
+//     components: {
+//       MuiTableCell: {
+//         styleOverrides: {
+//           head: {
+//             fontFamily: "Roboto, sans-serif",
+//             fontWeight: "500",
+//             fontSize: "12px",
+//             color: darkMode ? "#b0b0b0" : "#757575",
+//             textTransform: "uppercase",
+//             padding: "12px 16px",
+//             borderBottom: "none",
+//           },
+//           body: {
+//             fontFamily: "Roboto, sans-serif",
+//             fontSize: "14px",
+//             color: darkMode ? "#e0e0e0" : "#212121",
+//             padding: "12px 16px",
+//             borderBottom: "none",
+//           },
+//         },
+//       },
+//       MuiTableRow: {
+//         styleOverrides: {
+//           root: {
+//             "&:hover": {
+//               backgroundColor: "#E8F5E9",
+//             },
+//           },
+//         },
+//       },
+//       MuiButton: {
+//         styleOverrides: {
+//           root: { borderRadius: "8px", textTransform: "none", padding: "6px 12px" },
+//           contained: { boxShadow: "none", "&:hover": { backgroundColor: "#388E3C" } },
+//         },
+//       },
+//       MuiTextField: {
+//         styleOverrides: {
+//           root: {
+//             "& .MuiOutlinedInput-root": {
+//               borderRadius: "8px",
+//               backgroundColor: darkMode ? "#2a2a2a" : "#fff",
+//               "& fieldset": { borderColor: darkMode ? "#555" : "#ddd" },
+//               "&:hover fieldset": { borderColor: "#4CAF50" },
+//               "&.Mui-focused fieldset": { borderColor: "#4CAF50" },
+//             },
+//           },
+//         },
+//       },
+//       MuiIconButton: {
+//         styleOverrides: {
+//           root: {
+//             color: "#757575",
+//             "&:hover": { color: "#4CAF50" },
+//           },
+//         },
+//       },
+//       MuiCard: {
+//         styleOverrides: {
+//           root: {
+//             borderRadius: "10px",
+//             boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+//           },
+//         },
+//       },
+//     },
+//   });
+
+//   return (
+//     <ThemeProvider theme={theme}>
+//       <Box sx={{ display: "flex", minHeight: "100vh" }}>
+//         <Sidebar
+//           darkMode={darkMode}
+//           toggleDarkMode={toggleDarkMode}
+//           isMobile={isMobile}
+//           open={sidebarOpen}
+//           setOpen={setSidebarOpen}
+//         />
+//         <Box
+//           sx={{
+//             flexGrow: 1,
+//             width: { xs: "100%", sm: `calc(100% - ${sidebarOpen && !isMobile ? sidebarWidth : 0}px)` },
+//             transition: "width 0.3s ease",
+//           }}
+//         >
+//           <AdminNavbar
+//             sidebarOpen={sidebarOpen}
+//             setSidebarOpen={setSidebarOpen}
+//             isMobile={isMobile}
+//             sidebarWidth={sidebarOpen && !isMobile ? sidebarWidth : 0}
+//           />
+//           <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", minHeight: "100vh" }}>
+//             <Container maxWidth="lg" sx={{ pt: 10, pb: 4 }}>
+//               <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+//                 <Typography variant={isMobile ? "h5" : "h4"} sx={{ fontWeight: "bold", color: "text.primary" }}>
+//                   Categories
+//                 </Typography>
+//                 <Button
+//                   variant="outlined"
+//                   startIcon={<FileDownloadIcon />}
+//                   onClick={handleExport}
+//                   sx={{ borderRadius: "8px", padding: "6px 12px" }}
+//                 >
+//                   Export
+//                 </Button>
+//               </Box>
+
+//               <TextField
+//                 placeholder="Search categories..."
+//                 variant="outlined"
+//                 fullWidth
+//                 sx={{
+//                   mb: 3,
+//                   maxWidth: "500px",
+//                   "& .MuiOutlinedInput-root": {
+//                     borderRadius: "8px",
+//                     boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+//                   },
+//                 }}
+//                 onChange={handleSearch}
+//                 InputProps={{
+//                   startAdornment: (
+//                     <InputAdornment position="start">
+//                       <SearchIcon sx={{ color: "#4CAF50" }} />
+//                     </InputAdornment>
+//                   ),
+//                 }}
+//               />
+
+//               {user?.isAdmin && (isEditing || !editId) && (
+//                 <Card sx={{ mb: 4, bgcolor: "background.paper" }}>
+//                   <CardContent>
+//                     <Typography variant="h6" sx={{ mb: 3, color: "text.primary", fontWeight: "medium" }}>
+//                       {isEditing ? "Edit Category" : "Add New Category"}
+//                     </Typography>
+//                     <form onSubmit={handleSubmit}>
+//                       <Grid container spacing={2}>
+//                         <Grid item xs={12}>
+//                           <TextField
+//                             fullWidth
+//                             label="Category Name"
+//                             name="name"
+//                             value={category.name}
+//                             onChange={handleChange}
+//                             required
+//                             error={!!errors.name}
+//                             helperText={errors.name}
+//                           />
+//                         </Grid>
+//                         <Grid item xs={12}>
+//                           <TextField
+//                             fullWidth
+//                             label="Description"
+//                             name="description"
+//                             value={category.description}
+//                             onChange={handleChange}
+//                             multiline
+//                             rows={isMobile ? 2 : 3}
+//                           />
+//                         </Grid>
+//                         <Grid item xs={12}>
+//                           <Button
+//                             type="submit"
+//                             variant="contained"
+//                             fullWidth={isMobile}
+//                             sx={{ mt: 2, py: 1.5, borderRadius: "8px" }}
+//                           >
+//                             {isEditing ? "Update Category" : "Add Category"}
+//                           </Button>
+//                         </Grid>
+//                       </Grid>
+//                     </form>
+//                   </CardContent>
+//                 </Card>
+//               )}
+
+//               <TableContainer
+//                 component={Paper}
+//                 sx={{
+//                   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+//                   border: "none",
+//                   bgcolor: "#FFFFFF",
+//                   borderRadius: "8px",
+//                 }}
+//               >
+//                 <Table
+//                   sx={{
+//                     minWidth: { xs: 300, sm: 650 },
+//                     borderCollapse: "separate",
+//                     borderSpacing: "0 8px",
+//                   }}
+//                   aria-label="category table"
+//                 >
+//                   <TableHead>
+//                     <TableRow>
+//                       <TableCell>
+//                         <Checkbox
+//                           checked={selectedCategories.length === currentCategories.length && currentCategories.length > 0}
+//                           onChange={handleSelectAll}
+//                         />
+//                       </TableCell>
+//                       <TableCell onClick={() => handleSort("name")} sx={{ cursor: "pointer" }}>
+//                         NAME{" "}
+//                         {sortField === "name" && (sortDirection === "asc" ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />)}
+//                       </TableCell>
+//                       <TableCell
+//                         onClick={() => handleSort("description")}
+//                         sx={{ display: { xs: "none", sm: "table-cell" }, cursor: "pointer" }}
+//                       >
+//                         DESCRIPTION{" "}
+//                         {sortField === "description" && (sortDirection === "asc" ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />)}
+//                       </TableCell>
+//                       {user?.isAdmin && <TableCell align="right">ACTIONS</TableCell>}
+//                     </TableRow>
+//                   </TableHead>
+//                   <TableBody>
+//                     {currentCategories.map((c) => (
+//                       <TableRow key={c._id}>
+//                         <TableCell>
+//                           <Checkbox
+//                             checked={selectedCategories.includes(c._id)}
+//                             onChange={() => handleSelectCategory(c._id)}
+//                           />
+//                         </TableCell>
+//                         <TableCell>
+//                           <Box>
+//                             <Typography variant="body2" sx={{ fontWeight: "500" }}>
+//                               {c.name}
+//                             </Typography>
+//                             <Typography variant="caption" sx={{ color: "#757575" }}>
+//                               ID: {c._id.slice(0, 8)}
+//                             </Typography>
+//                           </Box>
+//                         </TableCell>
+//                         <TableCell sx={{ display: { xs: "none", sm: "table-cell" } }}>{c.description}</TableCell>
+//                         {user?.isAdmin && (
+//                           <TableCell align="right">
+//                             <IconButton onClick={() => handleEdit(c._id, c)} color="inherit">
+//                               <EditIcon />
+//                             </IconButton>
+//                             <IconButton onClick={() => openDeleteDialog(c._id)} color="inherit">
+//                               <DeleteIcon />
+//                             </IconButton>
+//                           </TableCell>
+//                         )}
+//                       </TableRow>
+//                     ))}
+//                   </TableBody>
+//                 </Table>
+//               </TableContainer>
+
+//               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 3 }}>
+//                 <Typography>
+//                   Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredCategories.length)} of {filteredCategories.length}
+//                 </Typography>
+//                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+//                   <IconButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+//                     <ChevronLeftIcon />
+//                   </IconButton>
+//                   <Typography>
+//                     Page {currentPage} of {totalPages}
+//                   </Typography>
+//                   <IconButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+//                     <ChevronRightIcon />
+//                   </IconButton>
+//                 </Box>
+//               </Box>
+//             </Container>
+
+//             <Dialog open={deleteDialogOpen} onClose={closeDeleteDialog} PaperProps={{ sx: { borderRadius: "10px" } }}>
+//               <DialogTitle>Confirm Delete</DialogTitle>
+//               <DialogContent>
+//                 <Typography>Are you sure you want to delete this category?</Typography>
+//               </DialogContent>
+//               <DialogActions>
+//                 <Button onClick={closeDeleteDialog}>Cancel</Button>
+//                 <Button onClick={handleDelete} color="secondary">Delete</Button>
+//               </DialogActions>
+//             </Dialog>
+
+//             <ToastContainer
+//               position="top-center"
+//               autoClose={3000}
+//               hideProgressBar={false}
+//               newestOnTop
+//               closeOnClick
+//               rtl={false}
+//               pauseOnFocusLoss
+//               draggable
+//               pauseOnHover
+//               theme={darkMode ? "dark" : "light"}
+//             />
+//           </Box>
+//         </Box>
+//       </Box>
+//     </ThemeProvider>
+//   );
+// };
+
+// export default ManageCategory;
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import AdminNavbar from "../components/AdminNavbar";
@@ -320,14 +1458,11 @@ import {
   InputAdornment,
   Checkbox,
   Container,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  Breadcrumbs,
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import EditIcon from "@mui/icons-material/Edit";
@@ -338,6 +1473,8 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import HomeIcon from "@mui/icons-material/Home";
+import CategoryIcon from "@mui/icons-material/Category";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./styles/Category.css"; // Keep if you want additional custom styles
@@ -359,14 +1496,13 @@ const ManageCategory = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const [errors, setErrors] = useState({});
   const sidebarWidth = 260;
   const navigate = useNavigate();
 
-  // Fetch initial data
   useEffect(() => {
     fetchCategories();
     fetchUser();
-
     const handleResize = () => {
       const mobile = window.innerWidth < 600;
       setIsMobile(mobile);
@@ -384,7 +1520,7 @@ const ManageCategory = () => {
       setCategories(response.data);
       setFilteredCategories(response.data);
     } catch (error) {
-      toast.error("Failed to fetch categories");
+      toast.error("Failed to fetch categories", { position: "top-center" });
     }
   };
 
@@ -392,37 +1528,46 @@ const ManageCategory = () => {
     try {
       const response = await axios.get("http://localhost:5000/api/users/me", { withCredentials: true });
       setUser(response.data);
-      if (!response.data.isAdmin) navigate("/"); // Redirect non-admins
+      if (!response.data.isAdmin) navigate("/");
     } catch (error) {
-      console.log("User not logged in");
       navigate("/login");
     }
   };
 
+  const validateForm = () => {
+    let tempErrors = {};
+    if (!category.name.trim()) tempErrors.name = "Category Name is required";
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
+
   const handleChange = (e) => {
     setCategory({ ...category, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user?.isAdmin) {
-      toast.error("Unauthorized: Admin access only");
+      toast.error("Unauthorized: Admin access only", { position: "top-center" });
       return;
     }
+    if (!validateForm()) return;
+
     try {
       if (isEditing) {
         await axios.put(`http://localhost:5000/api/category/${editId}`, category, { withCredentials: true });
-        toast.success("Category updated successfully!");
+        toast.success("Category updated successfully!", { position: "top-center" });
         setIsEditing(false);
         setEditId(null);
       } else {
         await axios.post("http://localhost:5000/api/category/add", category, { withCredentials: true });
-        toast.success("Category added successfully!");
+        toast.success("Category added successfully!", { position: "top-center" });
       }
       setCategory({ name: "", description: "" });
       fetchCategories();
     } catch (error) {
-      toast.error(error.response?.data?.error || "Something went wrong");
+      toast.error(error.response?.data?.error || "Something went wrong", { position: "top-center" });
     }
   };
 
@@ -434,17 +1579,17 @@ const ManageCategory = () => {
 
   const handleDelete = async () => {
     if (!user?.isAdmin) {
-      toast.error("Only admins can perform this action");
+      toast.error("Only admins can perform this action", { position: "top-center" });
       return;
     }
     try {
       await axios.delete(`http://localhost:5000/api/category/${categoryToDelete}`, { withCredentials: true });
-      toast.success("Category deleted successfully!");
+      toast.success("Category deleted successfully!", { position: "top-center" });
       fetchCategories();
       setDeleteDialogOpen(false);
       setCategoryToDelete(null);
     } catch (error) {
-      toast.error("Failed to delete category");
+      toast.error("Failed to delete category", { position: "top-center" });
     }
   };
 
@@ -459,7 +1604,7 @@ const ManageCategory = () => {
   };
 
   const handleExport = () => {
-    const csvContent = filteredCategories.map(c => `${c.name},${c.description}`).join("\n");
+    const csvContent = filteredCategories.map((c) => `${c.name},${c.description}`).join("\n");
     const blob = new Blob([`Name,Description\n${csvContent}`], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -467,6 +1612,7 @@ const ManageCategory = () => {
     link.download = "categories.csv";
     link.click();
     window.URL.revokeObjectURL(url);
+    toast.success("Categories exported successfully!", { position: "top-center" });
   };
 
   const handleSelectAll = (event) => {
@@ -506,14 +1652,12 @@ const ManageCategory = () => {
     const searchTerm = e.target.value.toLowerCase();
     const filtered = categories.filter(
       (c) =>
-        c.name.toLowerCase().includes(searchTerm) ||
-        c.description.toLowerCase().includes(searchTerm)
+        c.name.toLowerCase().includes(searchTerm) || c.description.toLowerCase().includes(searchTerm)
     );
     setFilteredCategories(filtered);
     setCurrentPage(1);
   };
 
-  // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentCategories = filteredCategories.slice(indexOfFirstItem, indexOfLastItem);
@@ -525,16 +1669,11 @@ const ManageCategory = () => {
     }
   };
 
-  const handleItemsPerPageChange = (event) => {
-    setItemsPerPage(event.target.value);
-    setCurrentPage(1);
-  };
-
   const theme = createTheme({
     palette: {
       mode: darkMode ? "dark" : "light",
-      primary: { main: "#4CAF50" }, // Match ManageVendors.js
-      secondary: { main: "#FF5252" }, // Match ManageVendors.js
+      primary: { main: "#4CAF50" },
+      secondary: { main: "#FF5252" },
       background: { default: darkMode ? "#121212" : "#F5F7FA", paper: darkMode ? "#1e1e1e" : "#FFFFFF" },
       text: { primary: darkMode ? "#e0e0e0" : "#212121", secondary: darkMode ? "#b0b0b0" : "#757575" },
     },
@@ -548,14 +1687,14 @@ const ManageCategory = () => {
             color: darkMode ? "#b0b0b0" : "#757575",
             textTransform: "uppercase",
             padding: "12px 16px",
-            borderBottom: "none", // Remove border-bottom for header
+            borderBottom: "none",
           },
           body: {
             fontFamily: "Roboto, sans-serif",
             fontSize: "14px",
             color: darkMode ? "#e0e0e0" : "#212121",
             padding: "12px 16px",
-            borderBottom: "none", // Remove border-bottom for body cells
+            borderBottom: "none",
           },
         },
       },
@@ -563,37 +1702,25 @@ const ManageCategory = () => {
         styleOverrides: {
           root: {
             "&:hover": {
-              backgroundColor: "#E8F5E9", // Hover effect matching ManageVendors.js
+              backgroundColor: "#E8F5E9",
             },
           },
         },
       },
       MuiButton: {
         styleOverrides: {
-          root: {
-            borderRadius: "10px",
-            textTransform: "none",
-            fontWeight: "500",
-          },
-          outlined: {
-            borderColor: "#4CAF50",
-            color: "#4CAF50",
-            "&:hover": { borderColor: "#388E3C", color: "#388E3C" },
-          },
-          contained: {
-            backgroundColor: "#4CAF50",
-            color: "#FFFFFF",
-            "&:hover": { backgroundColor: "#388E3C" },
-          },
+          root: { borderRadius: "8px", textTransform: "none", padding: "6px 12px" },
+          contained: { boxShadow: "none", "&:hover": { backgroundColor: "#388E3C" } },
         },
       },
       MuiTextField: {
         styleOverrides: {
           root: {
             "& .MuiOutlinedInput-root": {
-              borderRadius: "20px",
-              "& fieldset": { borderColor: darkMode ? "#b0b0b0" : "#E0E0E0" },
-              "&:hover fieldset": { borderColor: "#388E3C" },
+              borderRadius: "8px",
+              backgroundColor: darkMode ? "#2a2a2a" : "#fff",
+              "& fieldset": { borderColor: darkMode ? "#555" : "#ddd" },
+              "&:hover fieldset": { borderColor: "#4CAF50" },
               "&.Mui-focused fieldset": { borderColor: "#4CAF50" },
             },
           },
@@ -603,18 +1730,15 @@ const ManageCategory = () => {
         styleOverrides: {
           root: {
             color: "#757575",
-            "&:hover": {
-              color: "#4CAF50",
-            },
+            "&:hover": { color: "#4CAF50" },
           },
         },
       },
       MuiCard: {
         styleOverrides: {
           root: {
-            borderRadius: "12px",
-            boxShadow: "none",
-            border: "1px solid #E0E0E0",
+            borderRadius: "10px",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
           },
         },
       },
@@ -646,61 +1770,62 @@ const ManageCategory = () => {
           />
           <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", minHeight: "100vh" }}>
             <Container maxWidth="lg" sx={{ pt: 10, pb: 4 }}>
-              {/* Header */}
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                <Typography variant={isMobile ? "h5" : "h4"} sx={{ fontWeight: "bold", color: "text.primary" }}>
+              <Box sx={{ mb: 3 }}>
+                <Typography variant={isMobile ? "h5" : "h4"} sx={{ fontWeight: "bold", color: "text.primary", mb: 1 }}>
                   Categories
                 </Typography>
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  <Button
-                    variant="outlined"
-                    startIcon={<FileDownloadIcon />}
-                    onClick={handleExport}
-                    sx={{ borderRadius: "20px", textTransform: "none" }}
+                <Breadcrumbs separator="›" aria-label="breadcrumb" sx={{ color: "#4CAF50" }}>
+                  <Link
+                    to="/admin-dashboard"
+                    style={{ textDecoration: "none", color: "#4CAF50", display: "flex", alignItems: "center" }}
                   >
-                    Export
-                  </Button>
-                  <Button
-                    variant="contained"
-                    startIcon={<FileDownloadIcon />}
-                    onClick={() => navigate("/add-category")} // Assuming a route for adding categories
-                    sx={{ borderRadius: "20px", textTransform: "none" }}
-                  >
-                    Add Category
-                  </Button>
-                </Box>
+                    <HomeIcon sx={{ mr: 0.5 }} fontSize="small" />
+                    Dashboard
+                  </Link>
+                  <Typography color="#4CAF50" sx={{ display: "flex", alignItems: "center" }}>
+                    <CategoryIcon sx={{ mr: 0.5 }} fontSize="small" />
+                    Manage Category
+                  </Typography>
+                </Breadcrumbs>
               </Box>
 
-              {/* Search Bar */}
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, gap: 2 }}>
-                <TextField
-                  placeholder="Search categories..."
-                  variant="outlined"
-                  size="small"
-                  sx={{ flexGrow: 1, borderRadius: "20px" }}
-                  onChange={handleSearch}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
                 <Button
                   variant="outlined"
                   startIcon={<FileDownloadIcon />}
-                  sx={{ borderRadius: "20px", textTransform: "none" }}
+                  onClick={handleExport}
+                  sx={{ borderRadius: "8px", padding: "6px 12px" }}
                 >
-                  Filter
+                  Export
                 </Button>
               </Box>
 
-              {/* Category Form */}
+              <TextField
+                placeholder="Search categories..."
+                variant="outlined"
+                fullWidth
+                sx={{
+                  mb: 3,
+                  maxWidth: "500px",
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                  },
+                }}
+                onChange={handleSearch}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: "#4CAF50" }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
               {user?.isAdmin && (isEditing || !editId) && (
                 <Card sx={{ mb: 4, bgcolor: "background.paper" }}>
                   <CardContent>
-                    <Typography variant="h6" sx={{ mb: 2, color: "text.primary" }}>
+                    <Typography variant="h6" sx={{ mb: 3, color: "text.primary", fontWeight: "medium" }}>
                       {isEditing ? "Edit Category" : "Add New Category"}
                     </Typography>
                     <form onSubmit={handleSubmit}>
@@ -713,8 +1838,8 @@ const ManageCategory = () => {
                             value={category.name}
                             onChange={handleChange}
                             required
-                            variant="outlined"
-                            size={isMobile ? "small" : "medium"}
+                            error={!!errors.name}
+                            helperText={errors.name}
                           />
                         </Grid>
                         <Grid item xs={12}>
@@ -726,17 +1851,14 @@ const ManageCategory = () => {
                             onChange={handleChange}
                             multiline
                             rows={isMobile ? 2 : 3}
-                            variant="outlined"
-                            size={isMobile ? "small" : "medium"}
                           />
                         </Grid>
                         <Grid item xs={12}>
                           <Button
                             type="submit"
                             variant="contained"
-                            color="primary"
                             fullWidth={isMobile}
-                            sx={{ mt: 2, py: 1, borderRadius: "10px", textTransform: "none" }}
+                            sx={{ mt: 2, py: 1.5, borderRadius: "8px" }}
                           >
                             {isEditing ? "Update Category" : "Add Category"}
                           </Button>
@@ -747,13 +1869,12 @@ const ManageCategory = () => {
                 </Card>
               )}
 
-              {/* Category List */}
               <TableContainer
                 component={Paper}
                 sx={{
-                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
                   border: "none",
-                  bgcolor: "#FFFFFF", // White background
+                  bgcolor: "#FFFFFF",
                   borderRadius: "8px",
                 }}
               >
@@ -761,7 +1882,7 @@ const ManageCategory = () => {
                   sx={{
                     minWidth: { xs: 300, sm: 650 },
                     borderCollapse: "separate",
-                    borderSpacing: "0 8px", // Add spacing between rows
+                    borderSpacing: "0 8px",
                   }}
                   aria-label="category table"
                 >
@@ -823,17 +1944,11 @@ const ManageCategory = () => {
                 </Table>
               </TableContainer>
 
-              {/* Pagination */}
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2, p: 2 }}>
-                <FormControl sx={{ minWidth: 120 }}>
-                  <InputLabel>Items per page</InputLabel>
-                  <Select value={itemsPerPage} onChange={handleItemsPerPageChange} label="Items per page">
-                    <MenuItem value={5}>5</MenuItem>
-                    <MenuItem value={10}>10</MenuItem>
-                    <MenuItem value={25}>25</MenuItem>
-                    <MenuItem value={50}>50</MenuItem>
-                  </Select>
-                </FormControl>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 3 }}>
+                <Typography>
+                  Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredCategories.length)} of{" "}
+                  {filteredCategories.length}
+                </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <IconButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
                     <ChevronLeftIcon />
@@ -848,42 +1963,30 @@ const ManageCategory = () => {
               </Box>
             </Container>
 
-            {/* Delete Confirmation Dialog */}
-            <Dialog
-              open={deleteDialogOpen}
-              onClose={closeDeleteDialog}
-              PaperProps={{
-                sx: { borderRadius: "10px" },
-              }}
-              sx={{
-                backdropFilter: "blur(5px)", // Blurs the background
-              }}
-            >
-              <DialogTitle sx={{ textAlign: "center" }}>Confirm Delete</DialogTitle>
+            <Dialog open={deleteDialogOpen} onClose={closeDeleteDialog} PaperProps={{ sx: { borderRadius: "10px" } }}>
+              <DialogTitle>Confirm Delete</DialogTitle>
               <DialogContent>
                 <Typography>Are you sure you want to delete this category?</Typography>
               </DialogContent>
-              <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
-                <Button onClick={closeDeleteDialog} variant="outlined" color="primary">
-                  Cancel
-                </Button>
-                <Button onClick={handleDelete} variant="contained" color="secondary">
+              <DialogActions>
+                <Button onClick={closeDeleteDialog}>Cancel</Button>
+                <Button onClick={handleDelete} color="secondary">
                   Delete
                 </Button>
               </DialogActions>
             </Dialog>
 
-            {/* Toast Container */}
             <ToastContainer
-              position="top-right"
+              position="top-center"
               autoClose={3000}
               hideProgressBar={false}
-              newestOnTop={false}
+              newestOnTop
               closeOnClick
               rtl={false}
               pauseOnFocusLoss
               draggable
               pauseOnHover
+              theme={darkMode ? "dark" : "light"}
             />
           </Box>
         </Box>
