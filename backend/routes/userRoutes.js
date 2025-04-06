@@ -53,7 +53,7 @@ router.post("/login", loginUser);
 router.post("/verify-login-otp", verifyLoginOTP);
 router.get("/profile", isAuthenticated, getUserProfile);
 router.post("/logout", isAuthenticated, logoutUser);
-router.get("/customers", isAuthenticated, isAdmin, getAllCustomers);
+router.get("/customers", getAllCustomers);
 router.delete("/users/:id", isAuthenticated, isAdmin, deleteCustomer);
 
 module.exports = router;
