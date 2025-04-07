@@ -4050,7 +4050,6 @@ const AddProduct = () => {
                         Add Variants
                       </Typography>
                       <Grid container spacing={2} alignItems="center">
- brev
                         <Grid item xs={12} sm={4}>
                           <TextField
                             fullWidth

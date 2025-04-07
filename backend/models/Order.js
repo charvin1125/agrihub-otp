@@ -10,7 +10,7 @@ const OrderSchema = new mongoose.Schema({
   remarks: { type: String }, // New field
   crop: { type: String, required: true },
   purchaseType: { type: String, enum: ["Online", "Offline"], required: true },
-  paymentMethod: { type: String, enum: ["Cash", "Card", "Pay Later"], required: true },
+  paymentMethod: { type: String, enum: ["Cash On Delivery", "Card", "UPI", "Net Banking"], required: true },
   totalAmount: { type: Number, required: true },
   status: { type: String, enum: ["Pending", "Paid", "Shipped", "Completed", "Cancelled"], default: "Pending" },
   cart: [

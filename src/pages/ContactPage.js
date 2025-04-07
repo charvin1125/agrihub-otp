@@ -18,7 +18,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SendIcon from "@mui/icons-material/Send";
-
+import Footer from "../components/Footer"
 const ContactPage = () => {
   const navigate = useNavigate();
 
@@ -303,6 +303,7 @@ const ContactPage = () => {
             © {new Date().getFullYear()} AgriHub. All rights reserved.
           </Typography>
         </Box>
+        <Footer />
       </Box>
     </ThemeProvider>
   );

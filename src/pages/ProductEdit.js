@@ -2079,7 +2079,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
-import AdminNavbar from "../components/AdminNavbar";
+// import AdminNavbar from "../components/AdminNavbar";
 import {
   Box,
   Typography,
@@ -2453,12 +2453,12 @@ const EditProduct = () => {
             transition: "width 0.3s ease",
           }}
         >
-          <AdminNavbar
+          {/* <AdminNavbar
             sidebarOpen={sidebarOpen}
             setSidebarOpen={setSidebarOpen}
             isMobile={isMobile}
             sidebarWidth={sidebarOpen && !isMobile ? sidebarWidth : 0}
-          />
+          /> */}
           <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", minHeight: "100vh" }}>
             <Container maxWidth="lg" sx={{ pt: 10, pb: 4 }}>
               {/* Header with Breadcrumbs */}

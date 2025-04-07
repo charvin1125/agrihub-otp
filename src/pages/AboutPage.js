@@ -18,7 +18,7 @@ import { Carousel } from "react-bootstrap";
 import SlideImg1 from "../img/bg.jpg"; // Placeholder: replace with actual images
 import SlideImg2 from "../img/Seal.png";
 import SlideImg3 from "../img/logo-1-removebg.png";
-
+import Footer from "../components/Footer"
 const AboutPage = () => {
   const navigate = useNavigate();
 
@@ -271,6 +271,7 @@ const AboutPage = () => {
             © {new Date().getFullYear()} AgriHub. All rights reserved.
           </Typography>
         </Box>
+        <Footer/>
       </Box>
     </ThemeProvider>
   );
